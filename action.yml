@@ -11,6 +11,8 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - run: python3 -m pip install -r ${{ github.action_path }}/requirements.txt
+      shell: bash
     - run: python3 ${{ github.action_path }}/main.py ${{ inputs.inputXmlPath }} ${{ inputs.outputHtmlPath }}
       shell: bash
 branding:
