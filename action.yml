@@ -11,9 +11,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: sudo python -m pip install -r ${{ github.action_path }}/requirements.txt
-      shell: bash
-    - run: sudo python ${{ github.action_path }}/main.py ${{ inputs.inputXmlPath }} ${{ inputs.outputHtmlPath }}
+    - run: python3 ${{ github.action_path }}/main.py ${{ inputs.inputXmlPath }} ${{ inputs.outputHtmlPath }}
       shell: bash
 branding:
   icon: 'file'
