@@ -38,6 +38,7 @@ def html_test_row_content(test):
         p(),
         span(span(h6(f"Message"), p(f"{test['message']}")) if len(test['message']) > 0 else ""),
         span(span(h6(f"Stack Trace"), pre(f"{test['stack-trace']}", class_="bg-white")) if len(test['stack-trace']) > 0 else ""),
+        span(span(h6(f"Output"), pre(f"{test['output']}", class_="bg-white")) if len(test['output']) > 0 else ""),
     )
 
 
@@ -110,6 +111,7 @@ def parse_xml(filename_xml):
             "duration": child.getAttribute("duration"),
             "message": get_element_value(child, "message"),
             "stack-trace": get_element_value(child, "stack-trace"),
+            "output": get_element_value(child, "output"),
         })
     # Bring failures to top
     for i, item in enumerate(results["tests"]):
