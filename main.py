@@ -105,18 +105,16 @@ def parse_xml(filename_xml):
     results["summary"]["duration"] = xml_summary.getAttribute("duration")
     # Parse tests
     for child in xml.getElementsByTagName("test-case"):
-        results["tests"].append({
-            "name": child.getAttribute("fullname"),
-            "result": child.getAttribute("result"),
-            "duration": child.getAttribute("duration"),
-            "message": get_element_value(child, "message"),
-            "stack-trace": get_element_value(child, "stack-trace"),
-            "output": get_element_value(child, "output"),
-        })
-    # Bring failures to top
-    for i, item in enumerate(results["tests"]):
-        if item["result"] == "Failed":
-            results["tests"].insert(0, results["tests"].pop(i))
+        if child.getAttribute("result") == "Failed": # Only append if the result is "Failed"
+            results["tests"].append({
+                "name": child.getAttribute("fullname"),
+                "result": child.getAttribute("result"),
+                "duration": child.getAttribute("duration"),
+                "message": get_element_value(child, "message"),
+                "stack-trace": get_element_value(child, "stack-trace"),
+                "output": get_element_value(child, "output"),
+            })
+
     return results
 
 
