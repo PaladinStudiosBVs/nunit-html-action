@@ -8,12 +8,16 @@ inputs:
     description: 'HTML output file path'
     default: ''
     required: false
+  outputAll:
+    description: 'Output all test results'
+    default: 'false'
+    required: false
 runs:
   using: "composite"
   steps:
     - run: python3.11 -m pip install -r ${{ github.action_path }}/requirements.txt
       shell: bash
-    - run: python3.11 ${{ github.action_path }}/main.py ${{ inputs.inputXmlPath }} ${{ inputs.outputHtmlPath }}
+    - run: python3.11 ${{ github.action_path }}/main.py ${{ inputs.inputXmlPath }} ${{ inputs.outputHtmlPath }} ${{ inputs.outputAll }}
       shell: bash
 branding:
   icon: 'file'

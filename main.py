@@ -26,19 +26,35 @@ def html_summary(test_results):
             span_badge.light(f"Date: {summary['date']}"),
             span_badge.light(f"Duration: {summary['duration']}"),
         ),
-        style="margin-top: 1rem;"
+        style="margin-top: 1rem;",
     )
 
 
 def html_test_row_content(test):
     return div(
         h3(test["name"], style="overflow-wrap: break-word;"),
-        (span_badge.danger(f"{test['result']}") if len(test['message']) > 0 else span_badge.light(f"{test['result']}")),
+        (
+            span_badge.danger(f"{test['result']}")
+            if len(test["message"]) > 0
+            else span_badge.light(f"{test['result']}")
+        ),
         span_badge.light(f"Duration: {test['duration']}"),
         p(),
-        span(span(h6(f"Message"), p(f"{test['message']}")) if len(test['message']) > 0 else ""),
-        span(span(h6(f"Stack Trace"), pre(f"{test['stack-trace']}", class_="bg-white")) if len(test['stack-trace']) > 0 else ""),
-        span(span(h6(f"Output"), pre(f"{test['output']}", class_="bg-white")) if len(test['output']) > 0 else ""),
+        span(
+            span(h6(f"Message"), p(f"{test['message']}"))
+            if len(test["message"]) > 0
+            else ""
+        ),
+        span(
+            span(h6(f"Stack Trace"), pre(f"{test['stack-trace']}", class_="bg-white"))
+            if len(test["stack-trace"]) > 0
+            else ""
+        ),
+        span(
+            span(h6(f"Output"), pre(f"{test['output']}", class_="bg-white"))
+            if len(test["output"]) > 0
+            else ""
+        ),
     )
 
 
@@ -58,10 +74,7 @@ def html_test_list(test_results):
 
 
 def html_container(test_results):
-    return div(
-        html_summary(test_results),
-        html_test_list(test_results)
-    )
+    return div(html_summary(test_results), html_test_list(test_results))
 
 
 def make_html(test_results):
@@ -72,10 +85,7 @@ def make_html(test_results):
             )
         ),
         page_title="Test Results",
-        head_elements=[
-            req.bootstrap_css,
-            *req.all_js
-        ]
+        head_elements=[req.bootstrap_css, *req.all_js],
     )
     return str(page)
 
@@ -87,7 +97,7 @@ def get_element_value(child, tag):
         return ""
 
 
-def parse_xml(filename_xml):
+def parse_xml(filename_xml, outputAll):
     xml = parse(filename_xml)
     results = {
         "summary": {},
@@ -105,27 +115,38 @@ def parse_xml(filename_xml):
     results["summary"]["duration"] = xml_summary.getAttribute("duration")
     # Parse tests
     for child in xml.getElementsByTagName("test-case"):
-        if child.getAttribute("result") == "Failed": # Only append if the result is "Failed"
-            results["tests"].append({
+        if outputAll == "false" and child.getAttribute("result") == "Passed":
+            continue
+        results["tests"].append(
+            {
                 "name": child.getAttribute("fullname"),
                 "result": child.getAttribute("result"),
                 "duration": child.getAttribute("duration"),
                 "message": get_element_value(child, "message"),
                 "stack-trace": get_element_value(child, "stack-trace"),
                 "output": get_element_value(child, "output"),
-            })
+            }
+        )
+    # Bring failures to top
+    for i, item in enumerate(results["tests"]):
+        if item["result"] == "Failed":
+            results["tests"].insert(0, results["tests"].pop(i))
 
     return results
 
 
 def main():
     filename_xml = "example.xml"
+    outputAll = "false"
     if len(sys.argv) > 1:
         filename_xml = sys.argv[1]
     filename_html = filename_xml.replace(".xml", "") + ".html"
     if len(sys.argv) > 2:
         filename_html = sys.argv[2]
-    test_results = parse_xml(filename_xml)
+    if len(sys.argv) > 3:
+        outputAll = sys.argv[3]
+        return
+    test_results = parse_xml(filename_xml, outputAll)
     html = make_html(test_results)
     file = open(filename_html, "w")
     file.write(html)
