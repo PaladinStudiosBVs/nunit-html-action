@@ -144,8 +144,7 @@ def main():
     if len(sys.argv) > 2:
         filename_html = sys.argv[2]
     if len(sys.argv) > 3:
-        outputAll = sys.argv[3]
-        return
+        outputAll = str(sys.argv[3]).lower()
     test_results = parse_xml(filename_xml, outputAll)
     html = make_html(test_results)
     file = open(filename_html, "w")
